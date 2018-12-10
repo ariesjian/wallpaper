@@ -1,20 +1,21 @@
 import request from '../utils/request';
 import Config from '../common/config';
 import { stringify } from 'qs';
-export async function queryBrands(page = 1) {
-  return request(`${Config.API_HOST}brands?page=${page}`);
+export async function defaultList(params) { // 不分类别获取壁纸接口
+  return request(`${Config.API_HOST}vertical/vertical?${stringify(params)}`);
 }
-export async function getInTheaters(params) { // 获取热映列表数据
-  return request(`${Config.API_HOST}/movie/in_theaters?${stringify(params)}`);
+export async function categoryList(params) { // 获取手机壁纸类别
+  return request(`${Config.API_HOST}vertical/category?${stringify(params)}`);
 }
-
-// 电影详情
-export async function getDetail(id,params) { // 获取热映列表数据
-  return request(`${Config.API_HOST}/movie/subject/${id}?${stringify(params)}`);
+export async function downLoadCategory(id,params) { // 获取某类手机壁纸下壁纸
+    return request(`${Config.API_HOST}vertical/category/${id}?${stringify(params)}`);
 }
-//  电影搜索 https://api.douban.com/v2/movie/search
-export async function getSearch(params) { // 获取热映列表数据
-    return request(`${Config.API_HOST}/movie/search?${stringify(params)}`);
+export async function comments(id) { // 获取手机壁纸评论
+    return request(`${Config.API_HOST}vertical/vertical/${id}/comment?`);
 }
-
-
+export async function downLoads(id) { // 下载手机壁纸
+    return request(`http://img5.adesk.com/${id}`);
+}
+export async function wallpaperList(id) { // 获取专辑下的壁纸
+    return request(`${Config.API_HOST}wallpaper/album/+ ${id}/wallpaper`);
+}

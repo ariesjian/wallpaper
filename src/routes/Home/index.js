@@ -8,136 +8,124 @@ import {
     TouchableHighlight,
     Dimensions
 } from "react-native";
-import Swiper from "react-native-swiper";
-import {getInTheaters} from "../../service/api";
+import {TabView, SceneMap} from 'react-native-tab-view';
+import {CategoryView, NewView, HotView} from '../../componentItems'
+import {defaultList, categoryList, wallpaperList} from "../../service/api";
 
 const {height: D_HEIGHT, width: D_WIDTH} = Dimensions.get('window');
 export default class extends PureComponent {
     state = {
-        start: 1,
-        contentList: [],// 热映列表数据
-        total: '',// 总条数
+        hotLists: [],// 推荐列表
+        categoryList: [],// 分类列表
+        wallpaperList: [], // 专辑列表
+        tabs: {
+            index: 0,
+            routes: [
+                {key: 'one', title: '热门'},
+                {key: 'two', title: '最新'},
+                {key: 'three', title: '分类'},
+            ],
+        },
     };
 
     componentDidMount() {
-        this.getInTheatersList(false);
+        this.getHotList(false, false);
     }
 
-    getInTheatersList = async (startNew) => {
-        // 获取热映列表
-
+    // 最热列表
+    getHotList = async (currentPage, type) => {
         const params = {
-            apikey: "0b2bdeda43b5688921839c8ecb20399b",
-            city: "上海",
-            start: startNew ? startNew : this.state.start,
-            count: 15
+            limit: 30,// 返回数量
+            adult: false,// 布尔值，暂时未知
+            first: currentPage ? currentPage : 1,// 数字，如1
+            skip: 180,// 略过数量
+            order: type ? type : 'hot',//值 hot:最热为favs：受喜欢的， new：最新的
         };
         try {
-            const res = await getInTheaters(params);
-            if (res && res.subjects && res.subjects.length > 0) {
+            const res = await defaultList(params);
+            if (res && res.res &&res.res.vertical && res.res.vertical.length > 0) {
                 this.setState({
-                    contentList: this.state.contentList.concat(res.subjects),
-                    total: res.total,
-                    start: res.start,
+                    hotLists: res.res.vertical
                 });
             }
-            console.log(res);
         } catch (e) {
-            console.log(e);
         }
     };
 
+    // 分类列表
+    getCategoryList = async (currentPage) => {
+        const params = {
+            adult: false,// 布尔值，暂时未知
+            first: currentPage ? currentPage : 1,// 数字，如1
+        };
+        try {
+            const res = await categoryList(params);
+            if (res && res.res && res.res.category && res.res.category.length > 0) {
+                this.setState({
+                    categoryList: this.state.categoryList.concat(res.res.category)
+                });
+            }
+        } catch (e) {
+        }
+    };
+    // 专辑列表
+    getWallpaperList = async (currentPage) => {
+        const params = {
+            adult: false,// 布尔值，暂时未知
+            first: currentPage ? currentPage : 1,// 数字，如1
+        };
+        try {
+            const res = await wallpaperList(params);
+            if (res && res.res && res.res.album && res.res.album.length > 0) {
+                this.setState({
+                    wallpaperList: this.state.wallpaperList.concat(res.res.album)
+                });
+            }
+        } catch (e) {
+        }
+    };
+    // 最热模块组件
+    HotView = () => {
+
+    };
+    // renderScene={() => {
+    //     switch (routes.key) {
+    //         case 'one':
+    //             return <HotView/>;
+    //         case 'two':
+    //             return <NewView/>;
+    //         case 'three':
+    //             return <CategoryView/>;
+    //         default:
+    //             return null;
+    //     }
+    // }}
     render() {
-        const {contentList, start, total} = this.state;
+        const {hotLists, categoryList, tabs} = this.state;
         return (
-            <ScrollView
-                style={sty.container}
-                onMomentumScrollEnd={() => {
-                    if ((start-0) * 15 >= (total-0)) {
-                        console.log('已经没有更多了')
-                    } else {
-                        const startNew = this.state.start + 1;
-                        console.log('要分页了',startNew);
-                        this.getInTheatersList(startNew)
-                    }
-
-                }}
-            >
-                <View style={sty.top}>
-                    <Swiper
-                        style={sty.swiperWrap}
-                        height={200}
-                        autoplay={true}
-                    >
-                        {contentList.map((d, index) => {
-                            return (
-                                <TouchableHighlight
-                                    key={index}
-                                    // onPress={() => {
-                                    //     this.props.navigation.navigate("Detail", {
-                                    //         id: d.id,
-                                    //         title: d.title
-                                    //     });
-                                    // }}
-                                >
-                                    <View style={sty.swiper}>
-                                        <Image
-                                            style={sty.swiper_pic}
-                                            source={{uri: d.images.large}}
-                                        />
-                                        <View style={sty.titleTop}>
-                                            <Text style={sty.tit}>{d.title}</Text>
-                                        </View>
-                                    </View>
-                                </TouchableHighlight>
-                            );
-                        })}
-                    </Swiper>
-                </View>
-                <View style={sty.content}>
-                    {contentList.map((item, index) => {
-                        return (
-                            <TouchableHighlight
-                                key={index + 'a'}
-                                // onPress={() => {
-                                //     this.props.navigation.navigate("Detail", {
-                                //         id: item.id,
-                                //         title: item.title
-                                //     });
-                                // }}
-                            >
-                                <View style={sty.item}>
-                                    <View style={sty.pic_info}>
-                                        <Image
-                                            style={sty.moviePic}
-                                            source={{uri: item.images.small}}
-                                        />
-                                        <View style={sty.vip}>
-                                            <Text style={sty.vip_text}> VIP</Text>
-                                        </View>
-                                        <View style={sty.average}>
-                                            <Text style={sty.count}>{item.rating.average}</Text>
-                                        </View>
-                                    </View>
-                                    <View style={sty.movie_info}>
-                                        <Text style={sty.name}>{item.title}</Text>
-                                        <Text style={sty.types}>
-                                            {item.genres.map((i, v) => {
-                                                return (
-                                                    <Text key={v} style={sty.type}>
-                                                        {i}{v + 1 < item.genres.length ? '·' : ''}
-
-                                                    </Text>
-                                                );
-                                            })}
-                                        </Text>
-                                    </View>
-                                </View>
-                            </TouchableHighlight>
-                        );
+            <View style={sty.container}>
+                {hotLists &&
+                <TabView
+                    navigationState={tabs}
+                    renderScene={SceneMap({
+                        one: () => {
+                            if (hotLists && hotLists.length > 0) {
+                                return (
+                                    <HotView hotLists={hotLists}/>
+                                )
+                            }else{
+                                return null;
+                            }
+                        },
+                        two: () => <NewView/>,
+                        three: () => <CategoryView/>,
                     })}
-                </View>
-            </ScrollView>
+                    onIndexChange={index => this.setState({index})}
+                    initialLayout={{width: D_WIDTH}}
+                />
+                }
+
+            </View>
         );
     }
 }
@@ -146,115 +134,5 @@ const sty = StyleSheet.create({
     container: {
         flex: 1
     },
-    top: {
-        flex: 1
-    },
-    swiperWrap: {
-        // width: 375,
-        // height: 200
-    },
-    swiper: {
-        width: '100%',
-        height: 200,
-        position: "relative"
-    },
-    swiper_pic: {
-        width: '100%',
-        height: 200,
-        position: "absolute",
-        left: 0,
-        top: 0
-    },
-    titleTop: {
-        width: 200,
-        height: 30,
-        position: "absolute",
-        left: 30,
-        bottom: 10
-    },
-    tit: {
-        width: 200,
-        height: 30,
-        textAlign: "center",
-        fontSize: 20
-    },
-    content: {
-        flex: 3,
-        justifyContent: "flex-start",
-        flexDirection: "row",
-        padding: 5,
-        flexWrap: "wrap"
-    },
-    item: {
-        height: 180,
-        width: (D_WIDTH - 40) / 3,
-        margin: 5
-    },
-    pic_info: {
-        width: '100%',
-        height: 120,
-        position: "relative"
-    },
-    moviePic: {
-        position: "absolute",
-        height: 120,
-        left: 0,
-        top: 0,
-        width: '100%'
-    },
-    vip: {
-        position: "absolute",
-        width: 30,
-        height: 15,
-        right: 3,
-        top: 0,
-        borderRadius: 3
-    },
-    vip_text: {
-        width: 30,
-        height: 20,
-        color: "white",
-        fontSize: 14,
-        textAlign: "center"
-    },
-    average: {
-        position: "absolute",
-        width: 30,
-        height: 20,
-        right: 3,
-        bottom: 3
-    },
-    count: {
-        width: 30,
-        height: 20,
-        color: "yellow",
-        fontSize: 14,
-        textAlign: "center"
-    },
-    movie_info: {
-        height: 60,
-        width: 120
-    },
-    name: {
-        width: 120,
-        height: 30,
-        color: "#666666",
-        fontSize: 13,
-        textAlign: "center",
-        lineHeight: 30
-    },
-    types: {
-        flexDirection: "column",
-        width: 120,
-        height: 30,
-        justifyContent: "center",
-    },
-    type: {
-        width: 30,
-        height: 30,
-        color: "gray",
-        fontSize: 10,
-        textAlign: "center",
-        lineHeight: 30
-    }
+
 });
