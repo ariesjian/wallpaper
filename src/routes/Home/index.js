@@ -31,6 +31,7 @@ export default class extends PureComponent {
     componentDidMount() {
         this.getHotList(false, false);
     }
+
     // 最热列表
     getHotList = async (currentPage, type) => {
         const params = {
@@ -42,7 +43,7 @@ export default class extends PureComponent {
         };
         try {
             const res = await defaultList(params);
-            if (res && res.res &&res.res.vertical && res.res.vertical.length > 0) {
+            if (res && res.res && res.res.vertical && res.res.vertical.length > 0) {
                 this.setState({
                     hotLists: res.res.vertical
                 });
@@ -83,22 +84,7 @@ export default class extends PureComponent {
         } catch (e) {
         }
     };
-    // 最热模块组件
-    HotView = () => {
 
-    };
-    // renderScene={() => {
-    //     switch (routes.key) {
-    //         case 'one':
-    //             return <HotView/>;
-    //         case 'two':
-    //             return <NewView/>;
-    //         case 'three':
-    //             return <CategoryView/>;
-    //         default:
-    //             return null;
-    //     }
-    // }}
     render() {
         const {hotLists, categoryList, tabs} = this.state;
         return (
@@ -107,17 +93,9 @@ export default class extends PureComponent {
                 <TabView
                     navigationState={tabs}
                     renderScene={SceneMap({
-                        one: () => {
-                            if (hotLists && hotLists.length > 0) {
-                                return (
-                                    <HotView hotLists={hotLists}/>
-                                )
-                            }else{
-                                return null;
-                            }
-                        },
-                        two: () => <NewView/>,
-                        three: () => <CategoryView/>,
+                        one: () => <HotView hotLists={hotLists}/>,
+                        two: () => <NewView categoryList={categoryList}/>,
+                        three: () => <CategoryView categoryList={categoryList}/>,
                     })}
                     onIndexChange={index => this.setState({index})}
                     initialLayout={{width: D_WIDTH}}
