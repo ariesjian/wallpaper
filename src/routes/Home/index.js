@@ -31,7 +31,6 @@ export default class extends PureComponent {
     componentDidMount() {
         this.getHotList(false, false);
     }
-
     // 最热列表
     getHotList = async (currentPage, type) => {
         const params = {
