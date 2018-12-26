@@ -14,7 +14,7 @@ export default class extends PureComponent {
     render() {
         const {hotLists} = this.props;
         const {cid = '', thumb = '', id = '', tag = []} = hotLists;
-        console.log(tag,thumb, '--hotLists---');
+        console.log(tag,thumb, hotLists,'--hotLists---');
         return (
             <ScrollView style={sty.hot_wrap}>
                 {
@@ -22,7 +22,7 @@ export default class extends PureComponent {
                         return(
                             <View style={sty.hotView} key={index}>
                                 <TouchableHighlight style={sty.item} onPress={()=>{
-                                    console.log(cid,id,'-----------------------')
+                                    console.log(cid,id,'------------11-----------')
                                 }}>
                                     <View style={sty.pictures}>
                                         <Image style={sty.images} source={{uri: item.thumb}}/>
