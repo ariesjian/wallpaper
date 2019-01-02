@@ -9,7 +9,7 @@ import {
     Dimensions
 } from "react-native";
 import {TabView, SceneMap} from 'react-native-tab-view';
-import {CategoryView, NewView, HotView} from '../../componentItems'
+import {CategoryView, NewView, HotView} from './component/index'
 import {defaultList, categoryList, wallpaperList} from "../../service/api";
 
 const {height: D_HEIGHT, width: D_WIDTH} = Dimensions.get('window');
